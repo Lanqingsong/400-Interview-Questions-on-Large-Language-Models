@@ -186,24 +186,23 @@ LLM通常基于**Transformer解码器架构**，主要组件包括：
 3. **输出层**：将隐藏状态转换为词汇表上的概率分布
 
 **LLM架构示意图：**
+
 ```mermaid
 graph TD
-    Input[输入文本] --> Tokenize[分词]
-    Tokenize --> Embedding[词嵌入层]
-    Embedding --> Block1[Transformer Block 1]
-    Block1 --> Block2[Transformer Block 2]
-    Block2 --> Dots[...]
-    Dots --> BlockN[Transformer Block N]
-    BlockN --> Output[输出层]
-    Output --> Prob[词汇概率分布]
+    A[AI模型分类] --> B[判别式AI]
+    A --> C[生成式AI]
     
-    subgraph "单个Transformer Block"
-        direction LR
-        Attn[多头自注意力] --> AddNorm1[Add & Norm]
-        AddNorm1 --> FFN[前馈网络]
-        FFN --> AddNorm2[Add & Norm]
-    end
+    B --> B1[目标: P(Y|X)]
+    B --> B2[关注: 决策边界]
+    B --> B3[应用: 分类/回归]
+    B --> B4[代表模型: SVM, 逻辑回归]
+    
+    C --> C1[目标: P(X,Y)]
+    C --> C2[关注: 数据分布]
+    C --> C3[应用: 生成/创造]
+    C --> C4[代表模型: GAN, VAE, 扩散模型]
 ```
+
 
 #### 2.3 LLM训练的第一阶段：预训练（Pre-training）
 **目标**：在大规模无标注文本数据上学习通用的语言表示
