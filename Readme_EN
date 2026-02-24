@@ -1,0 +1,457 @@
+---
+
+### **Part 1: Foundational Concepts & Model Architecture**
+
+#### **Chapter 1: Core Concepts & Architectural Choices (1-15)**
+1.  What is the difference between predictive/discriminative AI and generative AI?
+2.  What is a Large Language Model (LLM)? How are LLMs trained?
+3.  What is a "token" in the context of language models?
+4.  What is the Transformer architecture? How is it used in LLMs?
+5.  Explain the differences between Encoder-only, Decoder-only, and Encoder-Decoder architectures. **[Orig 4]**
+6.  Why do most current LLMs almost exclusively use the Decoder-only architecture? **[Orig 5]**
+7.  Why do Transformers need positional encoding? **[Orig 9]**
+8.  CNNs and RNNs don't use positional embeddings. Why do Transformers need them?
+9.  Why did Transformers abandon the recurrent structure of RNNs? **[Orig 30]**
+10. Explain how the Transformer model addresses the limitations of CNNs and RNNs.
+11. What are the advantages of Transformers compared to LSTMs?
+12. Explain the difference between an autoregressive model and a masked language model.
+13. Explain the trade-offs between "deep and narrow" vs. "shallow and wide" models. **[Orig 35]**
+14. Explain the different types of LLM architectures and which architecture is best suited for which tasks?
+15. Compare state-space models (like Mamba) with Transformers. What are the trade-offs and suitable applications for each?
+
+#### **Chapter 2: Attention Mechanism Variants (16-40)**
+16. In Self-attention, what do the Q, K, V matrices represent respectively? **[Orig 1]**
+17. **[Code]** Implement a standard Scaled Dot-Product Attention. **[Orig 2]**
+18. Why does $QK^T$ need to be divided by $\sqrt{d}$? Explain from the perspective of variance shift. **[Orig 3]**
+19. Explain the attention mechanism in LLMs and how it is implemented.
+20. What is Multi-head Attention (MHA)? What is the core logic behind its parallelization? **[Orig 14]**
+21. What is Multi-query Attention (MQA)? How does it save memory? **[Orig 15]**
+22. What is Grouped-query Attention (GQA)? **[Orig 16]**
+23. **[New]** Explain the impact of the "group" size in Grouped-query Attention on performance.
+24. Explain the principle of the Causal Mask in the attention mechanism. **[Orig 17]**
+25. What is a Look-ahead Mask? **[Orig 39]**
+26. Explain what Cross-attention is. **[Orig 25]**
+27. Why is self-attention in the decoder sometimes referred to as cross-attention? How is it different from self-attention in the encoder?
+28. What is a Padding Token? How is it ignored in Attention calculations? **[Orig 26]**
+29. What is "numerical stability of attention scores"? **[Orig 33]**
+30. Explain the sparsification of attention matrices. **[Orig 38]**
+31. Explain the concept of "receptive field" in the self-attention mechanism. **[Orig 40]**
+32. Explain the "low-rank property" of self-attention. **[Orig 48]**
+33. What is Sliding Window Attention? **[Orig 49]**
+34. Explain the "redundancy" of attention heads. **[Orig 54]**
+35. **[New]** Explain the principle of Multi-head Latent Attention (MLA) and how it compresses the KV Cache. **[Acad: ★★★ | Ind: ★★★★★]**
+36. **[New]** What is the absorptive attention mechanism in DeepSeek-V2? **[Acad: ★ | Ind: ★★★]**
+37. Explain the difference between local attention and global attention.
+38. What makes Transformers computationally and memory intensive? How can we address this?
+39. Explain the block-wise computation principle of Flash Attention. **[Orig 138]**
+40. Explain Flash Attention's role in reducing memory bottlenecks.
+
+#### **Chapter 3: Positional Encoding & Long-Context Modeling (41-55)**
+41. What is positional encoding? **[Orig 9]**
+42. Explain the difference between absolute positional encoding and relative positional encoding. **[Orig 10]**
+43. Explain the physical significance of Rotary Position Embedding (RoPE) in detail. **[Orig 11]**
+44. Why does RoPE have length extrapolation capabilities? **[Orig 12]**
+45. Explain the principle of ALiBi positional encoding. **[Orig 13]**
+46. What is Sinusoidal positional encoding? **[Orig 37]**
+47. What are learnable positional encodings? **[Orig 41]**
+48. How do positional encodings work in modern LLMs? Why has Rotary Position Embedding (RoPE) become the standard?
+49. How can the context length of an LLM be increased?
+50. Explain the limits of long-range dependency modeling. **[Orig 58]**
+51. What is interpolation in the context of long-text extrapolation? **[Orig 227]**
+52. Explain what the "Needle In A Haystack" (NIAH) test is. **[Orig 228]**
+53. Explain FlashDecoding for long-sequence inference. **[Orig 246]**
+54. Explain long-text context compression. **[Orig 238]**
+55. How do LLMs handle long-range dependencies in text?
+
+#### **Chapter 4: Norm, FFN, and Low-Level Components (56-80)**
+56. What are Pre-norm and Post-norm? Why do large models tend to favor Pre-norm? **[Orig 6]**
+57. **[Code]** Implement an RMSNorm layer. **[Orig 7]**
+58. Explain the purpose of the $\epsilon$ term in LayerNorm? **[Orig 45]**
+59. Explain how Residual Connections help solve the vanishing gradient problem in deep networks. **[Orig 19]**
+60. Explain the gain scaling factor after residual connections. **[Orig 56]**
+61. Explain the principle of the SwiGLU activation function. **[Orig 8]**
+62. What is the FFN in Transformers? What is its parameter share? **[Orig 18]**
+63. Explain the origin of the dimension expansion factor (typically 4) inside the Transformer. **[Orig 36]**
+64. What are word embeddings? What role do they play in the computation graph? **[Orig 20]**
+65. Explain the considerations for choosing Embedding dimensions. **[Orig 21]**
+66. What is Tying Embedding (weight sharing)? **[Orig 31]**
+67. Explain the gradient update frequency for Embedding layers. **[Orig 52]**
+68. Explain the fusion of "deep features and shallow features". **[Orig 55]**
+69. Explain the computational cost of the Vocabulary Mapping Layer (Linear Head). **[Orig 42]**
+70. What is the "bottleneck layer" of a model? **[Orig 43]**
+71. Explain why "bias terms" are removed in many large model architectures? **[Orig 44]**
+72. Explain the principle of how Transformers handle variable-length input. **[Orig 46]**
+73. What is the parallel layer design in Transformers (e.g., in GPT-J)? **[Orig 53]**
+74. Explain the role of the position-wise feed-forward network sub-layer in the Transformer model?
+75. What is the anisotropy problem? **[Orig 23]**
+76. Explain how attention layers focus on the correct parts of the input?
+77. Can LayerNorm be optimized and fused during the inference phase? **[Orig 27]**
+78. Explain how the computation graph handles Dropout layers during backpropagation. **[Orig 32]**
+79. Explain how the Transformer model addresses the vanishing gradient problem?
+80. Explain the role of residual connections in the Transformer model.
+
+#### **Chapter 5: Mixture of Experts (MoE) (81-95)**
+81. **[New]** Explain the basic principles of Mixture-of-Experts (MoE) and the gating mechanism. **[Acad: ★★★ | Ind: ★★★★★]**
+82. **[New]** What are Expert Capacity and Token Dropping? **[Acad: ★★ | Ind: ★★★★]**
+83. **[New]** Explain the role of Load Balancing Loss in MoE training. **[Acad: ★★★ | Ind: ★★★★]**
+84. **[New]** What are "fine-grained experts" in DeepSeek-V3? **[Acad: ★★ | Ind: ★★★★★]**
+85. **[New]** Explain load balancing strategies without auxiliary loss. **[Acad: ★ | Ind: ★★★★]**
+86. **[New]** What are Shared Experts in MoE? What problem do they solve? **[Acad: ★★ | Ind: ★★★★]**
+87. **[New]** Explain the difference between Expert Parallelism and Data Parallelism. **[Acad: ★★ | Ind: ★★★★]**
+88. **[New]** Why does the memory footprint of an MoE model during inference exceed that of a dense model with equivalent activated parameters? **[Acad: ★★★ | Ind: ★★★★★]**
+89. Explain block-wise computation of weight matrices. **[Orig 50]**
+90. What is load balancing in a distributed setting? **[Orig 139]**
+91. What are the risks of numerical overflow inside a model? **[Orig 59]**
+92. What is a memory barrier? **[Orig 57]**
+93. Explain the optimization of "fragmented operators" in large models? **[Orig 51]**
+94. What are Mixture of Experts models? How can their inference efficiency be optimized?
+95. Explain the basic principles of Mixture of Experts models and their role in LLM pre-training.
+
+---
+
+### **Part 2: Data Engineering, Tokenization & Pre-training**
+
+#### **Chapter 6: Tokenization (96-115)**
+96. Explain the workflow of BPE (Byte Pair Encoding). **[Orig 61]**
+97. **[Code]** Simulate a simple BPE merging logic. **[Orig 62]**
+98. Compare BPE, WordPiece, and Unigram. **[Orig 63]**
+99. What is a Tokenizer's "compression ratio"? **[Orig 64]**
+100. What is Byte-level BPE? What problem does it solve? **[Orig 65]**
+101. Explain what OOV (Out-of-Vocabulary) means. **[Orig 66]**
+102. Explain the impact of expanding a Tokenizer's vocabulary on a pre-trained model. **[Orig 76]**
+103. What are Special Tokens (e.g., BOS, EOS, PAD)? **[Orig 77]**
+104. How to evaluate the quality of a Tokenizer? **[Orig 78]**
+105. What is the frequency threshold for a vocabulary? **[Orig 96]**
+106. How to handle the efficiency differences between Chinese and English in a multilingual Tokenizer? **[Orig 97]**
+107. What is the "space sensitivity" problem introduced by tokenizers? **[Orig 98]**
+108. What is the tokenizer alignment problem? **[Orig 103]**
+109. What is semantic drift in tokenization results? **[Orig 105]**
+110. What is robustness testing for tokenizers? **[Orig 107]**
+111. **[New]** Explain the gains and costs associated with the 128k vocabulary in LLaMA-3. **[Acad: ★★ | Ind: ★★★★]**
+112. How does "vocabulary size" impact a model's memory footprint? **[Orig 28]**
+113. Explain why subword tokenization is preferred over word-level tokenization in Transformer models.
+114. How do LLMs handle out-of-vocabulary words or tokens?
+115. How does the choice of tokenizer affect prompt engineering and model performance?
+
+#### **Chapter 7: Data Cleaning, Deduplication & Synthesis (116-140)**
+116. What are "heuristic rules" in pre-training data cleaning? **[Orig 67]**
+117. How to identify and filter web-crawled data with a machine-translated feel? **[Orig 68]**
+118. Explain the application of MinHash and LSH in large-scale data deduplication. **[Orig 69]**
+119. What is "data contamination" detection in pre-training? **[Orig 75]**
+120. What is PII redaction in data processing? **[Orig 79]**
+121. What is "perplexity filtering" in data cleaning? **[Orig 84]**
+122. What are the applications of regular expressions in data processing? **[Orig 89]**
+123. What is the process of converting web data to Markdown? **[Orig 90]**
+124. How to clean mathematical formulas and code blocks? **[Orig 91]**
+125. What is text similarity calculation (e.g., Jaccard distance)? **[Orig 92]**
+126. How to use classifiers for content quality scoring? **[Orig 100]**
+127. What is text language detection? **[Orig 101]**
+128. Explain the difference between document-level deduplication and sentence-level deduplication. **[Orig 102]**
+129. Explain the role of the FTFY library in data processing. **[Orig 108]**
+130. What constitutes high-quality instruction data? **[Orig 82]**
+131. How to identify test set leakage? **[Orig 87]**
+132. Explain what Common Crawl is. **[Orig 74]**
+133. Explain the "real-time shuffling" technique for pre-training data. **[Orig 99]**
+134. Explain the storage format for data sharding. **[Orig 95]**
+135. Explain memory mapping in data pipelines. **[Orig 104]**
+136. How to use LLMs to automatically generate training data (Self-Instruct)? **[Orig 83]**
+137. **[New]** How to clean "mode collapse" in synthetic data? **[Acad: ★★★ | Ind: ★★★★]**
+138. **[New]** Explain "importance sampling" in data sampling. **[Acad: ★★ | Ind: ★★]**
+139. **[New]** What is the definition of "knowledge density" in data mixture? **[Acad: ★★ | Ind: ★★★]**
+140. Explain the handling of bias and discrimination in corpora. **[Orig 106]**
+
+#### **Chapter 8: Data Mixture, Curriculum Learning & Scaling Laws (141-155)**
+141. What is "data mixture"? **[Orig 70]**
+142. Why is code data crucial for improving logical reasoning capabilities? **[Orig 71]**
+143. How to handle language imbalance in multilingual corpora? **[Orig 72]**
+144. What is "data annealing"? **[Orig 73]**
+145. What are the potentials and risks of "synthetic data"? **[Orig 88]**
+146. What are "sampling weights" in the pre-training phase? **[Orig 94]**
+147. Explain domain weighting optimization. **[Orig 85]**
+148. **[New]** What is "curriculum learning" in pre-training? **[Acad: ★★ | Ind: ★★★]**
+149. Explain the core contribution of data to LLM Scaling Laws. **[Orig 110]**
+150. What are Scaling Laws? **[Orig 111]**
+151. Explain the estimation formula relating compute $C$, parameters $N$, and data $D$. **[Orig 112]**
+152. What is the Chinchilla optimal configuration? **[Orig 113]**
+153. What are the "cold start" costs of large model pre-training? **[Orig 160]**
+154. What are the key challenges in pre-training data cleaning and mixture?
+155. What are common LLM pre-training objectives? How do they work?
+
+---
+
+### **Part 3: Distributed Training, Optimization & Precision**
+
+#### **Chapter 9: Distributed Parallelism Strategies (156-180)**
+156. Explain ZeRO-1, ZeRO-2, and ZeRO-3 in detail. **[Orig 114]**
+157. What is Tensor Parallelism (TP)? Describe the sharding of MLP layers. **[Orig 115]**
+158. What is Pipeline Parallelism (PP)? Explain the 1F1B schedule. **[Orig 116]**
+159. Explain the "bubble" in pipeline parallelism. **[Orig 117]**
+160. What are Data Parallelism (DP) and Distributed Data Parallelism (DDP)? **[Orig 118]**
+161. Explain what 3D Parallelism is. **[Orig 119]**
+162. **[New]** Explain what Sequence Parallelism is. **[Acad: ★★★ | Ind: ★★★★★]**
+163. **[New]** What is computation-communication overlap? **[Acad: ★★★ | Ind: ★★★★★]**
+164. Explain the principle of the All-Reduce operation in distributed training. **[Orig 124]**
+165. What is Ring All-Reduce in distributed computing? **[Orig 127]**
+166. What is model sharding? **[Orig 151]**
+167. Explain the communication synchronization overhead of tensor parallelism. **[Orig 150]**
+168. Explain "gradient compression" in data parallelism. **[Orig 152]**
+169. **[New]** Explain the principles of collective communication in distributed training. **[Acad: ★★★★ | Ind: ★★★]**
+170. What is the priority of communication operators under hybrid parallelism? **[Orig 159]**
+171. Explain "phased warm-up" in pipeline parallelism. **[Orig 142]**
+172. What is re-materialization of the computation graph? **[Orig 145]**
+173. What is fault tolerance in distributed training? **[Orig 149]**
+174. What is the straggler problem in distributed systems? **[Orig 136]**
+175. What is distributed random seed synchronization? **[Orig 144]**
+176. What is the NCCL library? **[Orig 125]**
+177. Explain how the ratio of communication volume to computation affects parallel efficiency. **[Orig 126]**
+178. What is GPU cluster topology (e.g., NVLink structure)? **[Orig 141]**
+179. What is Model Flops Utilization (MFU)? **[Orig 154]**
+180. What is memory fragmentation in memory managers? **[Orig 153]**
+
+#### **Chapter 10: Training Configuration, Optimizers & Stability (181-200)**
+181. Explain "learning rate warmup" in the pre-training phase. **[Orig 148]**
+182. What is the memory cost of the Adam optimizer? **[Orig 143]**
+183. Explain "master weights" in mixed precision training. **[Orig 130]**
+184. What is weight decay? **[Orig 131]**
+185. What are the limitations of hyperparameter tuning in large models? **[Orig 147]**
+186. Explain the principle of mixed precision training (FP16/BF16). **[Orig 120]**
+187. Why is BF16 superior to FP16 (from a dynamic range perspective)? **[Orig 121]**
+188. **[New]** What is FP8 training? What are its challenges? **[Acad: ★★ | Ind: ★★★★]**
+189. Explain the implementation of gradient clipping. **[Orig 132]**
+190. What is a Loss Spike? What are common triggers and troubleshooting methods? **[Orig 135]**
+191. Explain gradient accumulation. **[Orig 122]**
+192. Explain gradient consistency in pre-training. **[Orig 156]**
+193. Explain the principle of CPU Offloading. **[Orig 128]**
+194. What is asynchronous checkpoint saving in distributed training? **[Orig 133]**
+195. Calculate the memory footprint of optimizer states. **[Orig 129]**
+196. What is gradient accumulation, and how does it help in fine-tuning large models?
+197. What are the possible options to accelerate LLM fine-tuning?
+198. What are the challenges of numerical stability in large model training?
+199. How can LLMs be trained with low precision without losing accuracy?
+200. What is FP8? What are its advantages?
+
+#### **Chapter 11: Operator & Kernel Optimization (201-210)**
+201. What is kernel fusion? **[Orig 137]**
+202. What is activation checkpointing? **[Orig 123]**
+203. Explain the concept of "zero-copy" technology in distributed frameworks. **[Orig 155]**
+204. What is log monitoring in a distributed environment? **[Orig 157]**
+205. What is cluster-level resource scheduling (e.g., K8s/Slurm)? **[Orig 158]**
+206. Explain the difference between compute-bound and memory-bound operations.
+207. Explain the differences in operators between the Prefill phase and the Decode phase.
+208. What is computation-communication overlap?
+209. Explain TensorRT acceleration in model deployment. **[Orig 243]**
+210. Explain the role of ONNX in model conversion. **[Orig 244]**
+
+---
+
+### **Part 4: Fine-tuning, Alignment & Reasoning Models**
+
+#### **Chapter 12: Supervised Fine-tuning (SFT) & PEFT (211-235)**
+211. What is SFT (Supervised Fine-tuning)? **[Orig 161]**
+212. Explain what instruction following means. **[Orig 162]**
+213. **[Code]** Implement LoRA fine-tuning using the `peft` library. **[Orig 163]**
+214. Explain the principle of LoRA in detail and the choice of rank. **[Orig 164]**
+215. Explain the role of the Alpha parameter in LoRA training. **[Orig 193]**
+216. What is LoRA weight merging? **[Orig 165]**
+217. Explain the core improvements of QLoRA (NF4, Double Quantization). **[Orig 166]**
+218. What are the trade-offs between full parameter fine-tuning and Parameter-Efficient Fine-Tuning (PEFT)? **[Orig 167]**
+219. Explain what Prefix Tuning is. **[Orig 168]**
+220. What is Prompt Tuning? **[Orig 169]**
+221. What is P-Tuning v1/v2? **[Orig 170]**
+222. **[New]** What is Lora-on-Adapter (LoA)? **[Acad: ★ | Ind: ★★]**
+223. Explain the impact of fine-tuning on a model's reasoning ability. **[Orig 191]**
+224. What is the intrinsic dimension of "parameter space"? **[Orig 192]**
+225. Explain strategies for constructing validation sets during the fine-tuning phase. **[Orig 187]**
+226. Explain the analysis of token length distribution during the fine-tuning phase. **[Orig 207]**
+227. What is the Adapter switching technique for LoRA? **[Orig 204]**
+228. Explain the criteria for identifying "overfitting" in fine-tuning. **[Orig 203]**
+229. What is incremental pre-training of a model for vertical industries? **[Orig 200]**
+230. What is fine-tuning, and why is it crucial for LLMs?
+231. In which scenarios do we need to fine-tune an LLM?
+232. How to set hyperparameters for fine-tuning?
+233. How to create a fine-tuning dataset for question-answering tasks?
+234. How to improve a model so it only answers when it has sufficient context?
+235. How to estimate the infrastructure requirements for fine-tuning an LLM?
+
+#### **Chapter 13: Human Preference Alignment (RLHF/DPO/KTO) (236-260)**
+236. Explain the three-stage process of RLHF. **[Orig 171]**
+237. What is a Reward Model? **[Orig 172]**
+238. Explain the Rank Loss used in reward model training. **[Orig 173]**
+239. What is the PPO algorithm? What are its four core models? **[Orig 174]**
+240. Why is a KL divergence constraint needed in the RLHF stage? **[Orig 175]**
+241. What is DPO (Direct Preference Optimization)? **[Orig 176]**
+242. Why does DPO not require a reward model? **[Orig 177]**
+243. Explain the simplified point in the mathematical derivation of DPO. **[Orig 195]**
+244. **[New]** Explain what Iterative DPO is. **[Acad: ★★ | Ind: ★★★★]**
+245. What is the KTO loss function? **[Orig 196]**
+246. What is reward hacking? **[Orig 186]**
+247. **[New]** What is "Reward Model Divergence"? **[Acad: ★★ | Ind: ★★★]**
+248. What is "alignment tax"? **[Orig 178]**
+249. Explain catastrophic forgetting. **[Orig 179]**
+250. What is rejection sampling? **[Orig 180]**
+251. Explain how "exploration" vs. "exploitation" in RL manifests in LLM alignment. **[Orig 185]**
+252. What is the survival-of-the-fittest strategy in RLHF? **[Orig 190]**
+253. Explain the Actor-Critic framework in RLHF. **[Orig 205]**
+254. Explain "safety" filtering in model alignment. **[Orig 189]**
+255. What is human evaluation-based A/B testing? **[Orig 210]**
+256. Explain what "preference drift" is. **[Orig 201]**
+257. What is feedback-based online learning? **[Orig 202]**
+258. What is "format bias" in instruction fine-tuning? **[Orig 198]**
+259. **[New]** How to balance a model's reasoning ability with general conversational ability? **[Acad: ★★★★ | Ind: ★★★★]**
+260. How does RLHF improve output quality and safety? How does it compare to newer methods like DPO or RLAIF?
+
+#### **Chapter 14: Reasoning Models & Logic Enhancement (261-280)**
+261. **[New]** Explain "System 2 Thinking" (slow thinking). **[Acad: ★★★ | Ind: ★★★★★]**
+262. **[New]** What was the cold start dilemma for DeepSeek-R1-Zero? **[Acad: ★★ | Ind: ★★★★]**
+263. **[New]** Explain the GRPO (Group Relative Policy Optimization) algorithm. **[Acad: ★★★ | Ind: ★★★★★]**
+264. **[New]** Why can GRPO significantly save memory compared to PPO? **[Acad: ★★★★ | Ind: ★★★★★]**
+265. **[New]** What are Process Reward Models (PRM) and Outcome Reward Models (ORM)? **[Acad: ★★★★ | Ind: ★★★★]**
+266. **[New]** Explain how "thought tags" in reasoning models influence generation. **[Acad: ★★★ | Ind: ★★★★]**
+267. **[New]** What is the application of Self-Play in RL for large models? **[Acad: ★★ | Ind: ★★★★]**
+268. **[New]** Explain the role of Monte Carlo Tree Search (MCTS) in enhancing reasoning. **[Acad: ★★★ | Ind: ★★★★]**
+269. **[New]** How to solve the "repetition" phenomenon during the training of reasoning models? **[Acad: ★★★ | Ind: ★★★★]**
+270. What is Self-Correction training? **[Orig 208]**
+271. Explain how model "hallucination" changes during the alignment process. **[Orig 209]**
+272. What is Chain of Thought (CoT) for agents? **[Orig 229]**
+273. What is Tree of Thoughts (ToT)? **[Orig 239]**
+274. Explain the autoregressive generation process. **[Orig 222]**
+275. **[New]** What is the challenge of "language consistency" in reasoning alignment? **[Acad: ★★ | Ind: ★★★★]**
+276. Explain chain-of-thought prompting and its usefulness.
+277. How can prompt engineering be used to improve an LLM's reasoning abilities?
+278. If chain-of-thought prompting fails, how can you improve an LLM's reasoning?
+279. Explain reasoning verification chains.
+280. Explain the difference between knowledge-based hallucinations and logic-based hallucinations. How should they be addressed separately?
+
+---
+
+### **Part 5: Inference, Deployment & Application Systems**
+
+#### **Chapter 15: Inference System Optimization & Decoding (281-310)**
+281. What is KV Cache? Derive the formula for its memory footprint. **[Orig 211]**
+282. Explain the autoregressive bottleneck during the inference phase. **[Orig 212]**
+283. What is PagedAttention (the core principle of vLLM)? **[Orig 213]**
+284. What is continuous batching? **[Orig 214]**
+285. Explain Time to First Token (TTFT) and Tokens Per Second (TPS) in inference. **[Orig 221]**
+286. **[New]** Explain the separation of Prefill and Decode (PD Separation). **[Acad: ★★ | Ind: ★★★★]**
+287. **[New]** Explain the Chunked Prefill technique. **[Acad: ★★ | Ind: ★★★★]**
+288. **[New]** What are "static KV Cache" and "dynamic KV Cache"? **[Acad: ★★★ | Ind: ★★★★]**
+289. Explain "compute-bound" vs. "memory-bound" in inference. **[Acad: ★★★★★ | Ind: ★★★★]**
+290. Explain the basic steps to run an inference query on an LLM.
+291. Explain how KV caching accelerates LLM inference.
+292. How to calculate the size of the KV cache?
+293. Explain how to handle the large memory demands of KV Cache during inference.
+294. What is memory pool management during inference? **[Orig 241]**
+295. **[New]** Explain prefetching techniques in inference. **[Acad: ★★ | Ind: ★★★]**
+296. What is streaming output in inference services? **[Orig 245]**
+297. Explain what token streaming is.
+298. Explain how the temperature parameter affects the probability distribution. **[Orig 34]**
+299. **[Code]** Implement Top-p (Nucleus Sampling) logic. **[Orig 222]**
+300. Explain the greedy search decoding strategy and its main drawbacks.
+301. How does beam search improve upon greedy search, and what is the role of the beam width parameter?
+302. Compare deterministic and stochastic decoding methods.
+303. Explain how decoding strategies impact the quality and latency of LLM-generated output.
+304. What is speculative decoding? **[Orig 223]**
+305. **[New]** Explain the principle of Medusa for inference acceleration. **[Acad: ★★ | Ind: ★★★★]**
+306. **[New]** What is multi-step speculative decoding? **[Acad: ★★ | Ind: ★★★★]**
+307. Explain operator fusion in inference engines. **[Orig 232]**
+308. What is distributed inference? **[Orig 234]**
+309. **[New]** Explain the application of pipeline parallelism in distributed inference. **[Acad: ★★ | Ind: ★★★★]**
+310. Explain dynamic KV Cache offloading during inference. **[Orig 247]**
+
+#### **Chapter 16: Model Quantization Techniques (311-330)**
+311. Explain the numerical mapping logic in model quantization. **[Orig 215]**
+312. What is PTQ (Post-Training Quantization)? **[Orig 216]**
+313. Explain what QAT (Quantization-Aware Training) is? **[Orig 217]**
+314. What is INT8 and INT4 quantization? **[Orig 218]**
+315. Explain the principles of the GPTQ algorithm. **[Orig 219]**
+316. What is AWQ (Activation-aware Weight Quantization)? **[Orig 220]**
+317. **[New]** What is KV Cache quantization (e.g., FP8 KV Cache)? **[Acad: ★★★ | Ind: ★★★★★]**
+318. **[New]** What are "activation outliers" in quantization? How are they handled? **[Acad: ★★★★ | Ind: ★★★★]**
+319. **[New]** Explain what the GGUF format is. **[Acad: ★★★ | Ind: ★★★★]**
+320. **[New]** What is binary quantization of models? **[Acad: ★ | Ind: ★★]**
+321. Explain how to evaluate the accuracy drop caused by quantization. **[Orig 235]**
+322. What is the conversion ratio between "memory footprint" and "parameter count"? **[Orig 47]**
+323. How does quantization affect inference speed and memory requirements?
+324. Why doesn't quantization typically reduce LLM accuracy significantly?
+325. What are the methods to reduce the computational cost of LLMs? (e.g., quantization, distillation, pruning)
+326. What is the application of knowledge distillation in large models? **[Orig 182]**
+327. What techniques can optimize LLM inference for higher throughput?
+328. How can a model's response time be accelerated without using attention approximations (like grouped-query attention)?
+329. Explain how to accelerate the inference response time of an LLM.
+330. What are diffusion language models? How are they different from LLMs?
+
+#### **Chapter 17: RAG System Full Pipeline (331-355)**
+331. Explain the architecture of RAG (Retrieval-Augmented Generation). **[Orig 224]**
+332. What are vector databases? Give examples of common tools. **[Orig 225]**
+333. Explain the "hallucination suppression" mechanism in RAG. **[Orig 226]**
+334. Explain the role of reranking in the RAG pipeline. **[Orig 236]**
+335. What is the HNSW algorithm in vector retrieval? **[Orig 237]**
+336. Explain hybrid search in vector databases. **[Orig 248]**
+337. What is chunking? Why is it necessary?
+338. What factors influence the choice of chunk size?
+339. What are the different types of chunking methods?
+340. How can one find the ideal chunk size?
+341. How to digitize and chunk complex documents like annual reports?
+342. How to handle tables and list items during the chunking process?
+343. How to build a production-grade document processing and indexing pipeline?
+344. What are vector embeddings? What are embedding models?
+345. How to evaluate and select an embedding model?
+346. Explain what keyword retrieval is.
+347. How to fine-tune a reranking model?
+348. Explain the most commonly used metrics in information retrieval and when they might fail.
+349. How to evaluate the performance of a RAG system?
+350. How can external knowledge be introduced into an LLM?
+351. When should you use fine-tuning instead of RAG?
+352. How can RAG improve the accuracy, reliability, and verifiability of answers?
+353. What are the limitations of RAG compared to fine-tuning?
+354. Explain the architectural patterns for information retrieval and semantic search.
+355. How to improve retrieval accuracy in a RAG system?
+
+#### **Chapter 18: Agent Systems & Prompt Engineering (356-375)**
+356. Explain the ReAct framework. **[Orig 230]**
+357. What is the implementation principle of Function Calling? **[Orig 231]**
+358. Explain multi-agent collaboration. **[Orig 240]**
+359. What is the planning ability of an agent? **[Orig 249]**
+360. Explain the basic concepts and implementation strategies of an AI agent.
+361. Explain the difference between OpenAI functions and LangChain agents.
+362. What is agent prompting? How is it different from traditional prompt engineering?
+363. What is prompt engineering? Why is it crucial?
+364. Explain in-context learning and the types of prompt engineering.
+365. Give examples of different prompting techniques: zero-shot, few-shot, chain-of-thought, and explain when to use them.
+366. How do you evaluate the effectiveness of a prompt?
+367. How to avoid common pitfalls when designing prompts?
+368. How to handle hallucinations or bias issues through prompt engineering?
+369. Explain the role and usage of prompt templates.
+370. Why is chain-of-thought prompting effective?
+371. How would you structure a prompt to ensure the LLM outputs a specific format, like JSON?
+372. What is prompt hacking? What are the types and defense strategies?
+373. What tools or frameworks do you use to streamline the prompt engineering process?
+374. Explain plan-and-execute prompting strategies.
+375. How to improve model performance through iterative prompt optimization?
+
+#### **Chapter 19: Evaluation, Multimodality, Safety & Deployment Practices (376-400)**
+376. **[New]** Explain the role of the projector in multimodal models (e.g., LLaVA). **[Acad: ★★★ | Ind: ★★★★]**
+377. **[New]** What is LLM-as-a-Judge? How can position bias be mitigated? **[Acad: ★★★★ | Ind: ★★★★★]**
+378. How to evaluate the performance of a model after alignment? **[Orig 199]**
+379. How to measure the performance of an LLM? (Evaluation metrics and benchmarks)
+380. How to evaluate the best LLM model for your specific use case?
+381. What are the different metrics for evaluating LLMs?
+382. Why is model interpretability important in LLMs? How can it be achieved?
+383. What are the techniques for ensuring the ethical use of LLMs?
+384. How to ensure data security during the use of an LLM?
+385. How to deal with performance degradation of LLMs after deployment?
+386. What are the challenges of deploying LLMs in a production environment?
+387. How to estimate the running costs of SaaS-based vs. open-source LLM models?
+388. How to optimize the cost of an entire LLM system?
+389. Explain how to design a scalable LLM inference system.
+390. Compare online and offline LLM inference deployment scenarios.
+391. What are the typical bottlenecks in an LLM inference pipeline running on modern GPUs?
+392. What are the different LLM inference engines available?
+393. What are the challenges in distributed inference?
+394. Explain "zero-copy" data transfer in model deployment. **[Orig 250]**
+395. What are the common performance bottlenecks and optimization methods in large model deployment?
+396. How to build production-grade LLM application systems?
+397. Case study: LLM chat assistant with dynamic context.
+398. Case study: Advanced prompting techniques.
+399. Explain the development trends of agents in LLM applications.
+400. Summarize the key challenges and opportunities for the future development of LLM technology.
